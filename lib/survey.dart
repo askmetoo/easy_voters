@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-const _radius = 46.0;
+const _radius = 32.0;
 
 class Survey extends StatefulWidget {
   final String docId;
@@ -110,13 +109,13 @@ class SurveyState extends State<Survey> {
   }
 
   void _handleSubmit() {
-    print('Submitting selections');
     for (DocumentReference ref in _selected) {
       Firestore.instance.runTransaction((transaction) async {
-        DocumentSnapshot freshSnap = await transaction.get(ref);
+        DocumentSnapshot option = await transaction.get(ref);
         await transaction
-            .update(freshSnap.reference, {'votes': freshSnap['votes'] + 1});
+            .update(option.reference, {'votes': option['votes'] + 1});
       });
     }
+    Navigator.pop(context);
   }
 }

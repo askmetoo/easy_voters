@@ -46,8 +46,6 @@ class SearchSurveyRoute extends StatelessWidget {
   }
 
   void _handleSubmitted(BuildContext context) async {
-    // _textController.clear();
-
     await Navigator.of(context).push(
       new MaterialPageRoute<void>(
         // Add 20 lines from here...

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateSurveyRoute extends StatefulWidget {
   @override
@@ -8,8 +9,14 @@ class CreateSurveyRoute extends StatefulWidget {
 class CreateSurveyRouteState extends State<CreateSurveyRoute> {
   // Create a global key that will uniquely identify the `Form` widget
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-
+  final _db = Firestore.instance.collection('surveys');
   final _options = List<Widget>();
+  final _controllers = List<TextEditingController>();
+  final _nameController = new TextEditingController();
+
+  void initState() {
+    _buildOptionTextField();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +39,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
           new Padding(
             padding: const EdgeInsets.all(8.0),
             child: new TextFormField(
+              controller: _nameController,
               validator: (value) {
                 if (value.isEmpty) {
                   return 'Name is required.';
@@ -48,27 +56,21 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
             child: new ListView.builder(
               shrinkWrap: true,
               padding: const EdgeInsets.all(8.0),
-              itemBuilder: (_, int index) => _options[index],
+              itemBuilder: (_, int index) => _buildRow(index),
               itemCount: _options.length,
             ),
           ),
           new ButtonBar(
             children: <Widget>[
-              new RaisedButton(
-                child: new Text('Plus'),
-                onPressed: _buldOptionTextField,
-              ),
-              new RaisedButton(
-                child: new Text('Minus'),
+              new FlatButton(
+                child: new Text('CANCEL'),
                 onPressed: () {
-                  print('removing option');
-                  setState(() {
-                    _options.removeLast();
-                  });
+                  _nameController.clear();
+                  for (var controller in _controllers) controller.clear();
                 },
               ),
               new RaisedButton(
-                child: new Text('Submit'),
+                child: new Text('SUBMIT'),
                 onPressed: () {
                   if (_formKey.currentState.validate()) _handleSubmit();
                 },
@@ -80,16 +82,18 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
     );
   }
 
-  void _buldOptionTextField() {
+  void _buildOptionTextField() {
     print('adding option');
-    setState(() {
-      _options.add(
-        new Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: new TextFormField(
+    final _textController = new TextEditingController();
+    _controllers.add(_textController);
+    setState(
+      () {
+        _options.add(
+          new TextFormField(
+            controller: _textController,
             validator: (value) {
               if (value.isEmpty) {
-                return 'Option is required. Remove it if you no longer need it.';
+                return 'Option is required.';
               }
             },
             decoration: InputDecoration(
@@ -100,12 +104,63 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
               hintText: 'Option...',
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
-  void _handleSubmit() {
-    print('Submitting forum...');
+  void _removeTextField() {
+    if (_options.length < 2) return;
+    print('removing option');
+    setState(() {
+      _options.removeLast();
+    });
+    _controllers.removeLast();
+  }
+
+  Widget _buildRow(int index) {
+    final _last = index == _options.length - 1;
+    final _controls = !_last
+        ? new Container()
+        : new Row(
+            children: [
+              new IconButton(
+                icon: new Icon(Icons.add),
+                onPressed: _buildOptionTextField,
+              ),
+              new IconButton(
+                icon: new Icon(Icons.remove),
+                onPressed: _removeTextField,
+              ),
+            ],
+          );
+
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Row(
+        children: [
+          new Expanded(
+            child: _options[index],
+          ),
+          _controls,
+        ],
+      ),
+    );
+  }
+
+  void _handleSubmit() async {
+    print('Submitting forum... Num of controllers: ' +
+        _controllers.length.toString());
+
+    DocumentReference ref = await _db.add({
+      'multi-select': false,
+      'name': _nameController.text,
+    });
+
+    for (var controller in _controllers) {
+      ref.collection('options').document(controller.text).setData({
+        'votes': 0,
+      });
+    }
   }
 }

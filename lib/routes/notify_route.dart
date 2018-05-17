@@ -1,22 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:voters/routes/notify_route.dart';
+class NotifyRoute extends StatefulWidget {
+  final String docId;
 
-class CreateSurveyRoute extends StatefulWidget {
+  NotifyRoute({this.docId});
+
   @override
-  CreateSurveyRouteState createState() => new CreateSurveyRouteState();
+  NotifyRouteState createState() => new NotifyRouteState();
 }
 
-class CreateSurveyRouteState extends State<CreateSurveyRoute> {
+class NotifyRouteState extends State<NotifyRoute> {
   // Create a global key that will uniquely identify the `Form` widget
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  final _db = Firestore.instance.collection('surveys');
-  final _options = List<Widget>();
+  final _emails = List<Widget>();
   final _controllers = List<TextEditingController>();
-  final _nameController = new TextEditingController();
+  final _ownerEmailController = new TextEditingController();
 
   @override
   void initState() {
@@ -46,15 +46,15 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
           new Padding(
             padding: const EdgeInsets.all(8.0),
             child: new TextFormField(
-              controller: _nameController,
+              controller: _ownerEmailController,
               validator: (value) {
                 if (value.isEmpty) {
-                  return 'Name is required.';
+                  return 'Your email is required.';
                 }
               },
               decoration: InputDecoration(
                 border: new OutlineInputBorder(),
-                hintText: 'Name...',
+                hintText: 'Your email...',
                 filled: true,
               ),
             ),
@@ -64,7 +64,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
               shrinkWrap: true,
               padding: const EdgeInsets.all(8.0),
               itemBuilder: (_, int index) => _buildRow(index),
-              itemCount: _options.length,
+              itemCount: _emails.length,
             ),
           ),
           new ButtonBar(
@@ -72,7 +72,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
               new FlatButton(
                 child: new Text('CANCEL'),
                 onPressed: () {
-                  _nameController.clear();
+                  _ownerEmailController.clear();
                   for (var controller in _controllers) controller.clear();
                 },
               ),
@@ -95,12 +95,12 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
     _controllers.add(_textController);
     setState(
       () {
-        _options.add(
+        _emails.add(
           new TextFormField(
             controller: _textController,
             validator: (value) {
               if (value.isEmpty) {
-                return 'Option is required.';
+                return 'Additional email is required.';
               }
             },
             decoration: InputDecoration(
@@ -108,7 +108,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
                 borderRadius:
                     const BorderRadius.all(const Radius.circular(32.0)),
               ),
-              hintText: 'Option...',
+              hintText: 'Additional Email...',
             ),
           ),
         );
@@ -117,16 +117,16 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
   }
 
   void _removeTextField() {
-    if (_options.length < 2) return;
+    if (_emails.length < 2) return;
     print('removing option');
     setState(() {
-      _options.removeLast();
+      _emails.removeLast();
     });
     _controllers.removeLast();
   }
 
   Widget _buildRow(int index) {
-    final _last = index == _options.length - 1;
+    final _last = index == _emails.length - 1;
     final _controls = !_last
         ? new Container()
         : new Row(
@@ -147,7 +147,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
       child: new Row(
         children: [
           new Expanded(
-            child: _options[index],
+            child: _emails[index],
           ),
           _controls,
         ],
@@ -156,27 +156,42 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
   }
 
   void _handleSubmit() async {
-    print('Submitting forum... Num of controllers: ' +
-        _controllers.length.toString());
-
-    DocumentReference ref = await _db.add({
-      'multi-select': false,
-      'name': _nameController.text,
-    });
+    print('Testing');
+    var url =
+        'https://us-central1-voter-a604f.cloudfunctions.net/sendEmail?email=' +
+            _ownerEmailController.text +
+            '&id=' +
+            widget.docId;
+    _sendEmail(url);
 
     for (var controller in _controllers) {
-      ref.collection('options').document(controller.text).setData({
-        'votes': 0,
-      });
+      url =
+          'https://us-central1-voter-a604f.cloudfunctions.net/sendEmail?email=' +
+              controller.text +
+              '&id=' +
+              widget.docId;
+      _sendEmail(url);
+    }
+  }
+
+  void _sendEmail(var url) async {
+    var httpClient = new HttpClient();
+
+    String result;
+    try {
+      var request = await httpClient.getUrl(Uri.parse(url));
+      var response = await request.close();
+      if (response.statusCode == HttpStatus.OK) {
+        var data = await response.transform(UTF8.decoder).join();
+        result = data;
+      } else {
+        result =
+            'Error getting a random quote:\nHttp status ${response.statusCode}';
+      }
+    } catch (exception) {
+      result = 'Failed invoking the getRandomQuote function.';
     }
 
-    Navigator.of(context).push(
-      new MaterialPageRoute<void>(
-        // Add 20 lines from here...
-        builder: (BuildContext context) {
-          return NotifyRoute(docId: ref.documentID);
-        },
-      ),
-    );
+    print(result);
   }
 }

@@ -30,7 +30,7 @@ class NotifyRouteState extends State<NotifyRoute> {
     return new Scaffold(
       appBar: AppBar(
         title: new Text(
-          'Create Your Survey',
+          'Notifying Voters',
         ),
         centerTitle: true,
       ),

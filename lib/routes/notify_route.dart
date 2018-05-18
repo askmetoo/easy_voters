@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+const ROOT_URL =
+    'https://us-central1-voter-a604f.cloudfunctions.net/sendEmail?email=';
+
 class NotifyRoute extends StatefulWidget {
   final String docId;
 
@@ -157,21 +160,15 @@ class NotifyRouteState extends State<NotifyRoute> {
 
   void _handleSubmit() async {
     print('Testing');
-    var url =
-        'https://us-central1-voter-a604f.cloudfunctions.net/sendEmail?email=' +
-            _ownerEmailController.text +
-            '&id=' +
-            widget.docId;
+    var url = ROOT_URL + _ownerEmailController.text + '&id=' + widget.docId;
     _sendEmail(url);
 
     for (var controller in _controllers) {
-      url =
-          'https://us-central1-voter-a604f.cloudfunctions.net/sendEmail?email=' +
-              controller.text +
-              '&id=' +
-              widget.docId;
+      url = ROOT_URL + controller.text + '&id=' + widget.docId;
       _sendEmail(url);
     }
+
+    Navigator.pop(context);
   }
 
   void _sendEmail(var url) async {

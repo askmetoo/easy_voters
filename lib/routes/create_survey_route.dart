@@ -168,6 +168,8 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
       });
     }
 
+    Navigator.pop(context);
+
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         // Add 20 lines from here...

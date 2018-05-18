@@ -1,5 +1,6 @@
 {
   "projects": {
-    "voters": "voter-a604f"
+    "voters": "voter-a604f",
+    "easyvoters": "voter-a604f"
   }
 }

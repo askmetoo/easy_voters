@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:voters/chart.dart';
+
 const _radius = 32.0;
 
 class Survey extends StatefulWidget {
@@ -14,6 +16,7 @@ class Survey extends StatefulWidget {
 
 class SurveyState extends State<Survey> {
   final _selected = Set<DocumentReference>();
+  List<Option> _options = [];
   var _db;
 
   @override
@@ -27,6 +30,12 @@ class SurveyState extends State<Survey> {
           'Survey',
         ),
         centerTitle: true,
+        actions: <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.assessment),
+            onPressed: _displayChart,
+          )
+        ],
       ),
       backgroundColor: Colors.blue,
       body: new StreamBuilder(
@@ -94,6 +103,8 @@ class SurveyState extends State<Survey> {
 
   Widget _buildOption(DocumentSnapshot document) {
     final bool alreadySelected = _selected.contains(document.reference);
+    newOption(document);
+
     return new ListTile(
       title: new Text(
         document.documentID,
@@ -108,6 +119,22 @@ class SurveyState extends State<Survey> {
     );
   }
 
+  void newOption(DocumentSnapshot document) async {
+    DocumentSnapshot option = await document.reference.get();
+    _options.add(new Option(document.documentID, option['votes']));
+  }
+
+  void _displayChart() {
+    Navigator.of(context).push(
+      new MaterialPageRoute<void>(
+        // Add 20 lines from here...
+        builder: (BuildContext context) {
+          return new Chart(_options);
+        },
+      ),
+    );
+  }
+
   void _handleSubmit() {
     for (DocumentReference ref in _selected) {
       Firestore.instance.runTransaction((transaction) async {
@@ -118,4 +145,11 @@ class SurveyState extends State<Survey> {
     }
     Navigator.pop(context);
   }
+}
+
+class Option {
+  final String name;
+  final int votes;
+
+  Option(this.name, this.votes);
 }

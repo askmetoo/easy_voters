@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 const ROOT_URL =
-    'https://us-central1-voter-a604f.cloudfunctions.net/sendEmail?email=';
+    'https://us-central1-easy-voters.cloudfunctions.net/sendEmail?email=';
 
 class NotifyRoute extends StatefulWidget {
   final String docId;

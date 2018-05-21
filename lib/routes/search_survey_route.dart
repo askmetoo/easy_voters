@@ -14,38 +14,39 @@ class SearchSurveyRoute extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: new Center(
-        child: new Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0),
-          decoration: new BoxDecoration(
-            color: Theme.of(context).cardColor,
-          ),
-          child: new Row(
-            children: <Widget>[
-              new Flexible(
-                child: new TextField(
-                  controller: _textController,
-                  onSubmitted: (String text) => _handleSubmitted(context),
-                  decoration: new InputDecoration.collapsed(
-                    hintText: 'Survey ID...',
-                  ),
+      body: new Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+        decoration: new BoxDecoration(
+          color: Theme.of(context).cardColor,
+        ),
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Flexible(
+              child: new TextField(
+                controller: _textController,
+                onSubmitted: (String text) => _handleSubmitted(context),
+                decoration: new InputDecoration.collapsed(
+                  hintText: 'Survey ID...',
                 ),
               ),
-              new Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: new IconButton(
-                  icon: new Icon(Icons.send),
-                  onPressed: () => _handleSubmitted(context),
-                ),
-              )
-            ],
-          ),
+            ),
+            new Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: new IconButton(
+                icon: new Icon(Icons.send),
+                onPressed: () => _handleSubmitted(context),
+              ),
+            )
+          ],
         ),
       ),
     );
   }
 
   void _handleSubmitted(BuildContext context) async {
+    if (_textController.text.isEmpty) return;
+
     await Navigator.of(context).push(
       new MaterialPageRoute<void>(
         // Add 20 lines from here...

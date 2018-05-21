@@ -14,17 +14,24 @@ class HomeRoute extends StatelessWidget {
       body: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            new RaisedButton(
-              onPressed: () => _pushCreate(context),
-              child: new Text(
-                'Create a Survey',
+            new Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new RaisedButton(
+                onPressed: () => _pushCreate(context),
+                child: new Text(
+                  'Create a Survey',
+                ),
               ),
             ),
-            new RaisedButton(
-              onPressed: () => _pushSearch(context),
-              child: new Text(
-                'Search a Survey',
+            new Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new RaisedButton(
+                onPressed: () => _pushSearch(context),
+                child: new Text(
+                  'Search a Survey',
+                ),
               ),
             ),
           ],

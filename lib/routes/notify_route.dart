@@ -35,8 +35,10 @@ class NotifyRouteState extends State<NotifyRoute> {
         title: new Text(
           'Notifying Voters',
         ),
+        elevation: 0.0,
         centerTitle: true,
       ),
+      backgroundColor: Theme.of(context).primaryColor,
       body: _buildForm(),
     );
   }
@@ -59,6 +61,7 @@ class NotifyRouteState extends State<NotifyRoute> {
                 border: new OutlineInputBorder(),
                 hintText: 'Your email...',
                 filled: true,
+                fillColor: Colors.white,
               ),
             ),
           ),
@@ -101,17 +104,19 @@ class NotifyRouteState extends State<NotifyRoute> {
         _emails.add(
           new TextFormField(
             controller: _textController,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Additional email is required.';
-              }
-            },
+            // validator: (value) {
+            //   if (value.isEmpty) {
+            //     return 'Additional email is required.';
+            //   }
+            // },
             decoration: InputDecoration(
               border: new OutlineInputBorder(
                 borderRadius:
                     const BorderRadius.all(const Radius.circular(32.0)),
               ),
               hintText: 'Additional Email...',
+              filled: true,
+              fillColor: Colors.white,
             ),
           ),
         );

@@ -9,8 +9,11 @@ class HomeRoute extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Voter"),
+        title: new Text("Easy Voters"),
+        elevation: 0.0,
+        centerTitle: true,
       ),
+      backgroundColor: Theme.of(context).primaryColor,
       body: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,

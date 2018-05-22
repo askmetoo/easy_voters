@@ -30,8 +30,10 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
         title: new Text(
           'Create Your Survey',
         ),
+        elevation: 0.0,
         centerTitle: true,
       ),
+      backgroundColor: Theme.of(context).primaryColor,
       body: _buildForm(),
     );
   }
@@ -54,6 +56,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
                 border: new OutlineInputBorder(),
                 hintText: 'Name...',
                 filled: true,
+                fillColor: Colors.white,
               ),
             ),
           ),
@@ -96,17 +99,19 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
         _options.add(
           new TextFormField(
             controller: _textController,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Option is required.';
-              }
-            },
+            // validator: (value) {
+            //   if (value.isEmpty) {
+            //     return 'Option is required.';
+            //   }
+            // },
             decoration: InputDecoration(
               border: new OutlineInputBorder(
                 borderRadius:
                     const BorderRadius.all(const Radius.circular(32.0)),
               ),
               hintText: 'Option...',
+              filled: true,
+              fillColor: Colors.white,
             ),
           ),
         );
@@ -130,7 +135,9 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
         : new Row(
             children: [
               new IconButton(
-                icon: new Icon(Icons.add),
+                icon: new Icon(
+                  Icons.add,
+                ),
                 onPressed: _buildOptionTextField,
               ),
               new IconButton(

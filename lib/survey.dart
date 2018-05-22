@@ -37,7 +37,7 @@ class SurveyState extends State<Survey> {
           )
         ],
       ),
-      backgroundColor: Colors.blue,
+      backgroundColor: Theme.of(context).primaryColor,
       body: new StreamBuilder(
         stream: _db.snapshots(),
         builder: (context, snapshot) {
@@ -89,8 +89,6 @@ class SurveyState extends State<Survey> {
               }),
           new RaisedButton(
             onPressed: _hasSelected ? _handleSubmit : null,
-            textColor: Colors.white,
-            color: Colors.blueAccent,
             disabledColor: Colors.grey,
             child: new Text(
               'Finish',

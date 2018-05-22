@@ -12,8 +12,10 @@ class SearchSurveyRoute extends StatelessWidget {
         title: new Text(
           'Search for a Survey',
         ),
+        elevation: 0.0,
         centerTitle: true,
       ),
+      backgroundColor: Theme.of(context).primaryColor,
       body: new Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0),
         decoration: new BoxDecoration(

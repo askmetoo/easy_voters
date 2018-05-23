@@ -184,7 +184,7 @@ class NotifyRouteState extends State<NotifyRoute> {
       var request = await httpClient.getUrl(Uri.parse(url));
       var response = await request.close();
       if (response.statusCode == HttpStatus.OK) {
-        var data = await response.transform(UTF8.decoder).join();
+        var data = await response.transform(utf8.decoder).join();
         result = data;
       } else {
         result =

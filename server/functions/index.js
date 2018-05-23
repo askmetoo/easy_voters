@@ -55,6 +55,15 @@ exports.sendEmail = functions.https.onRequest((req, res) => {
   return res.send("success!");
 });
 
+exports.sendReport = functions.https.onRequest((req, res) => {
+  const id = req.query.id;
+  const email = "nathanallencooper@gmail.com";
+
+  sendReport(email, id);
+
+  return res.send("success!");
+});
+
 // Sends a welcome email to the given user.
 function sendEmail(email, id) {
   const mailOptions = {
@@ -67,6 +76,22 @@ function sendEmail(email, id) {
   mailOptions.text = `Hello from ${APP_NAME}!\n
   You have been invited to vote on a survey. Here is the survey's ID: ${id}.\n\n
   If you don't have the EasyVoters app already, download it from the Google Play Store.`;
+  return mailTransport.sendMail(mailOptions).then(() => {
+    return console.log("New welcome email sent to:", email);
+  });
+}
+
+// Sends a welcome email to the given user.
+function sendReport(email, id) {
+  const mailOptions = {
+    from: `${APP_NAME} <noreply@firebase.com>`,
+    to: email
+  };
+
+  // The user subscribed to the newsletter.
+  mailOptions.subject = `${APP_NAME}: Report of Survey!`;
+  mailOptions.text = `Hello from ${APP_NAME}!\n
+  The following survey's ID has been reported: ${id}.`;
   return mailTransport.sendMail(mailOptions).then(() => {
     return console.log("New welcome email sent to:", email);
   });

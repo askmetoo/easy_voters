@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -15,6 +17,8 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
   final _options = List<Widget>();
   final _controllers = List<TextEditingController>();
   final _nameController = new TextEditingController();
+
+  var _accepted_terms = false;
 
   @override
   void initState() {
@@ -160,7 +164,48 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
     );
   }
 
+  Future<Null> _showTerms() async {
+    return showDialog<Null>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Terms and Conditions'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text('You will never be satisfied.'),
+                new Text('You\’re like me. I’m never satisfied.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Decline'),
+              onPressed: () {
+                _accepted_terms = false;
+                Navigator.of(context).pop();
+              },
+              textColor: Colors.black,
+            ),
+            new RaisedButton(
+              child: new Text('Accept'),
+              onPressed: () {
+                _accepted_terms = true;
+                Navigator.of(context).pop();
+              },
+              textColor: Colors.black,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _handleSubmit() async {
+    await _showTerms();
+    if (!_accepted_terms) return;
+
     print('Submitting forum... Num of controllers: ' +
         _controllers.length.toString());
 

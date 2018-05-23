@@ -1,9 +1,15 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:voters/chart.dart';
 
 const _radius = 32.0;
+const REPORT_URL =
+    'https://us-central1-easy-voters.cloudfunctions.net/sendReport';
 
 class Survey extends StatefulWidget {
   final String docId;
@@ -18,6 +24,7 @@ class SurveyState extends State<Survey> {
   final _selected = Set<DocumentReference>();
   List<Option> _options = [];
   var _db;
+  var _reported = false;
 
   @override
   Widget build(BuildContext context) {
@@ -73,26 +80,41 @@ class SurveyState extends State<Survey> {
             height: 10.0,
           ),
           new StreamBuilder(
-              stream: _db.collection('options').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Text('Loading...');
-                return new Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.all(8.0),
-                    reverse: false,
-                    itemBuilder: (_, int index) =>
-                        _buildOption(snapshot.data.documents[index]),
-                    itemCount: snapshot.data.documents.length,
-                  ),
-                );
-              }),
-          new RaisedButton(
-            onPressed: _hasSelected ? _handleSubmit : null,
-            disabledColor: Colors.grey,
-            child: new Text(
-              'Finish',
-            ),
+            stream: _db.collection('options').snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Text('Loading...');
+              return new Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.all(8.0),
+                  reverse: false,
+                  itemBuilder: (_, int index) =>
+                      _buildOption(snapshot.data.documents[index]),
+                  itemCount: snapshot.data.documents.length,
+                ),
+              );
+            },
+          ),
+          new ButtonBar(
+            children: [
+              new FlatButton(
+                onPressed: _handleReport,
+                child: new Text(
+                  'Report',
+                ),
+                textColor: Colors.red,
+              ),
+              // new Expanded(
+              //   child: new Container(),
+              // ),
+              new RaisedButton(
+                onPressed: _hasSelected ? _handleSubmit : null,
+                disabledColor: Colors.grey,
+                child: new Text(
+                  'Finish',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -141,6 +163,70 @@ class SurveyState extends State<Survey> {
             .update(option.reference, {'votes': option['votes'] + 1});
       });
     }
+    Navigator.pop(context);
+  }
+
+  Future<Null> _showReport() async {
+    return showDialog<Null>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Report'),
+          content: new SingleChildScrollView(
+            child: new ListBody(
+              children: <Widget>[
+                new Text('Are you sure you wish to report this survey?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('No'),
+              onPressed: () {
+                _reported = false;
+                Navigator.of(context).pop();
+              },
+              textColor: Colors.black,
+            ),
+            new RaisedButton(
+              child: new Text('Yes'),
+              onPressed: () {
+                _reported = true;
+                Navigator.of(context).pop();
+              },
+              textColor: Colors.white,
+              color: Colors.red,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleReport() async {
+    await _showReport();
+    if (!_reported) return;
+
+    var httpClient = new HttpClient();
+
+    String result;
+    try {
+      var request = await httpClient
+          .getUrl(Uri.parse(REPORT_URL + '?id=' + widget.docId));
+      var response = await request.close();
+      if (response.statusCode == HttpStatus.OK) {
+        var data = await response.transform(utf8.decoder).join();
+        result = data;
+      } else {
+        result =
+            'Error getting a random quote:\nHttp status ${response.statusCode}';
+      }
+    } catch (exception) {
+      result = 'Failed invoking the getRandomQuote function.';
+    }
+
+    print(result);
     Navigator.pop(context);
   }
 }

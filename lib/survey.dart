@@ -206,28 +206,28 @@ class SurveyState extends State<Survey> {
 
   void _handleReport() async {
     await _showReport();
-    if (!_reported) return;
+    if (_reported) {
+      var httpClient = new HttpClient();
 
-    var httpClient = new HttpClient();
-
-    String result;
-    try {
-      var request = await httpClient
-          .getUrl(Uri.parse(REPORT_URL + '?id=' + widget.docId));
-      var response = await request.close();
-      if (response.statusCode == HttpStatus.OK) {
-        var data = await response.transform(utf8.decoder).join();
-        result = data;
-      } else {
-        result =
-            'Error getting a random quote:\nHttp status ${response.statusCode}';
+      String result;
+      try {
+        var request = await httpClient
+            .getUrl(Uri.parse(REPORT_URL + '?id=' + widget.docId));
+        var response = await request.close();
+        if (response.statusCode == HttpStatus.OK) {
+          var data = await response.transform(utf8.decoder).join();
+          result = data;
+        } else {
+          result =
+              'Error getting a random quote:\nHttp status ${response.statusCode}';
+        }
+      } catch (exception) {
+        result = 'Failed invoking the getRandomQuote function.';
       }
-    } catch (exception) {
-      result = 'Failed invoking the getRandomQuote function.';
-    }
 
-    print(result);
-    Navigator.pop(context);
+      print(result);
+      Navigator.pop(context);
+    }
   }
 }
 

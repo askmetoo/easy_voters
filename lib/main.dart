@@ -7,7 +7,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 
 void main() => runApp(new App());
 
-final ThemeData _EVTheme = _buildEVTheme();
+final ThemeData _evTheme = _buildEVTheme();
 
 ThemeData _buildEVTheme() {
   final ThemeData base = ThemeData.light();
@@ -57,7 +57,7 @@ class App extends StatelessWidget {
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       home: new HomeRoute(),
-      theme: _buildEVTheme(),
+      theme: _evTheme,
     );
   }
 }

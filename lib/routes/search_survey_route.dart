@@ -47,15 +47,15 @@ class SearchSurveyRoute extends StatelessWidget {
   }
 
   void _handleSubmitted(BuildContext context) async {
-    if (_textController.text.isEmpty) return;
-
-    await Navigator.of(context).push(
-      new MaterialPageRoute<void>(
-        // Add 20 lines from here...
-        builder: (BuildContext context) {
-          return Survey(docId: _textController.text);
-        },
-      ),
-    );
+    if (_textController.text.isNotEmpty) {
+      await Navigator.of(context).push(
+        new MaterialPageRoute<void>(
+          // Add 20 lines from here...
+          builder: (BuildContext context) {
+            return Survey(docId: _textController.text);
+          },
+        ),
+      );
+    }
   }
 }

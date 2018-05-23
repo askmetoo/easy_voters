@@ -18,7 +18,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
   final _controllers = List<TextEditingController>();
   final _nameController = new TextEditingController();
 
-  var _accepted_terms = false;
+  var _acceptedTerms = false;
 
   @override
   void initState() {
@@ -183,7 +183,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
             new FlatButton(
               child: new Text('Decline'),
               onPressed: () {
-                _accepted_terms = false;
+                _acceptedTerms = false;
                 Navigator.of(context).pop();
               },
               textColor: Colors.black,
@@ -191,7 +191,7 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
             new RaisedButton(
               child: new Text('Accept'),
               onPressed: () {
-                _accepted_terms = true;
+                _acceptedTerms = true;
                 Navigator.of(context).pop();
               },
               textColor: Colors.black,
@@ -204,31 +204,28 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
 
   void _handleSubmit() async {
     await _showTerms();
-    if (!_accepted_terms) return;
-
-    print('Submitting forum... Num of controllers: ' +
-        _controllers.length.toString());
-
-    DocumentReference ref = await _db.add({
-      'multi-select': false,
-      'name': _nameController.text,
-    });
-
-    for (var controller in _controllers) {
-      ref.collection('options').document(controller.text).setData({
-        'votes': 0,
+    if (_acceptedTerms) {
+      DocumentReference ref = await _db.add({
+        'multi-select': false,
+        'name': _nameController.text,
       });
+
+      for (var controller in _controllers) {
+        ref.collection('options').document(controller.text).setData({
+          'votes': 0,
+        });
+      }
+
+      Navigator.pop(context);
+
+      Navigator.of(context).push(
+        new MaterialPageRoute<void>(
+          // Add 20 lines from here...
+          builder: (BuildContext context) {
+            return NotifyRoute(docId: ref.documentID);
+          },
+        ),
+      );
     }
-
-    Navigator.pop(context);
-
-    Navigator.of(context).push(
-      new MaterialPageRoute<void>(
-        // Add 20 lines from here...
-        builder: (BuildContext context) {
-          return NotifyRoute(docId: ref.documentID);
-        },
-      ),
-    );
   }
 }

@@ -174,8 +174,12 @@ class CreateSurveyRouteState extends State<CreateSurveyRoute> {
           content: new SingleChildScrollView(
             child: new ListBody(
               children: <Widget>[
-                new Text('You will never be satisfied.'),
-                new Text('You\’re like me. I’m never satisfied.'),
+                new Text(
+                    'By hitting \'Accept\' you agree the survey meets the following criteria:'),
+                new Text(
+                    '1) There is no hateful or discriminatory language and'),
+                new Text(
+                    '2) There is no inappropriate content that may offend people.'),
               ],
             ),
           ),
